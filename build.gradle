@@ -1,0 +1,9 @@
+plugins {
+    id "org.jetbrains.intellij" version "0.1.10"
+}
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'java'
+
+intellij {
+    plugins 'android'
+}
