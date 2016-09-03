@@ -1,4 +1,4 @@
-package com.github.shchurov.prefseditor;
+package com.github.shchurov.prefseditor.helpers.adb;
 
 public class AdbCommandBuilder {
 
@@ -12,6 +12,10 @@ public class AdbCommandBuilder {
 
     private String getPrefsPath(String applicationId) {
         return "/data/data/" + applicationId + "/shared_prefs/";
+    }
+
+    public String buildRemoveDir(String deviceMainDir) {
+        return "adb shell rm -rf " + deviceMainDir;
     }
 
     public String buildMakeDir(String path) {

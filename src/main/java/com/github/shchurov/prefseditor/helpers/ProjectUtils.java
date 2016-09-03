@@ -1,4 +1,4 @@
-package com.github.shchurov.prefseditor;
+package com.github.shchurov.prefseditor.helpers;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -11,8 +11,11 @@ import java.util.List;
 
 public class ProjectUtils {
 
-    public static String getApplicationId(AnActionEvent actionEvent) {
-        Project project = actionEvent.getData(PlatformDataKeys.PROJECT);
+    public static Project getProject(AnActionEvent event) {
+        return event.getData(PlatformDataKeys.PROJECT);
+    }
+
+    public static String getApplicationId(Project project) {
         List<AndroidFacet> facets = new ArrayList<>();
         facets.addAll(AndroidUtils.getApplicationFacets(project));
         // TODO: handle if many facets
