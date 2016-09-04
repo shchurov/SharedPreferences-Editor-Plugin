@@ -13,7 +13,6 @@ public class AdbCommandExecutor {
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {
-            System.out.println(line);
             sb.append(line).append("\n");
         }
         if (sb.length() != 0) {

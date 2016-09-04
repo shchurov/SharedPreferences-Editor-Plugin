@@ -1,5 +1,6 @@
 package com.github.shchurov.prefseditor.helpers;
 
+import com.github.shchurov.prefseditor.model.Preference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -11,16 +12,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public class PreferencesParser {
 
-    public Map<String, Object> parse(String filePath) throws ParseException {
+    public List<Preference> parse(String filePath) throws ParseException {
         Document document = buildDocument(filePath);
-        return buildPreferencesMap(document.getDocumentElement());
+        return buildPreferencesList(document.getDocumentElement());
     }
 
     private Document buildDocument(String filePath) throws ParseException {
@@ -32,8 +33,8 @@ public class PreferencesParser {
         }
     }
 
-    private Map<String, Object> buildPreferencesMap(Element rootElement) throws ParseException {
-        Map<String, Object> map = new HashMap<>();
+    private List<Preference> buildPreferencesList(Element rootElement) throws ParseException {
+        List<Preference> list = new ArrayList<>();
         NodeList nodes = rootElement.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
@@ -41,11 +42,11 @@ public class PreferencesParser {
                 continue;
             }
             Element element = (Element) node;
-            String name = element.getAttribute("name");
+            String key = element.getAttribute("name");
             Object value = extractValue(element);
-            map.put(name, value);
+            list.add(new Preference(key, value));
         }
-        return map;
+        return list;
     }
 
     private Object extractValue(Element element) throws ParseException {
