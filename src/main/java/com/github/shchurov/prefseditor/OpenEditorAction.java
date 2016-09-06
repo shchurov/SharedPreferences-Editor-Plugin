@@ -3,7 +3,7 @@ package com.github.shchurov.prefseditor;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
 import com.github.shchurov.prefseditor.helpers.ProjectUtils;
-import com.github.shchurov.prefseditor.presentation.EditorDialog;
+import com.github.shchurov.prefseditor.presentation.ViewPreferencesDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -41,7 +41,7 @@ public class OpenEditorAction extends AnAction {
                 initDeviceDirs();
                 initLocalDirs();
                 pullSharedPreferences(applicationId);
-                ApplicationManager.getApplication().invokeLater(() -> openEditorDialog(project));
+                ApplicationManager.getApplication().invokeLater(() -> openViewPreferencesDialog(project));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,8 +92,8 @@ public class OpenEditorAction extends AnAction {
         }
     }
 
-    private void openEditorDialog(Project project) {
-        new EditorDialog(project, localUnifiedDir, unifiedNamesMap).show();
+    private void openViewPreferencesDialog(Project project) {
+        new ViewPreferencesDialog(project, localUnifiedDir, unifiedNamesMap).show();
     }
 
 }
