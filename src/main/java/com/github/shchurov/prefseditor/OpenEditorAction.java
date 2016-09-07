@@ -21,7 +21,7 @@ public class OpenEditorAction extends AnAction {
         Project project = ProjectUtils.getProject(action);
         try {
             DirectoriesBundle dirBundle = new DirectoriesCreator().createDirectories();
-            Map<String, String> unifiedNamesMap = new PreferencesPuller(project).pullPreferences(dirBundle);
+            Map<String, String> unifiedNamesMap = new FilesPuller(project).pullFiles(dirBundle);
             String selectedName = new ChooseFileDialog(project, unifiedNamesMap.keySet()).showAndGetFileName();
             if (selectedName == null) {
                 return;
@@ -33,6 +33,7 @@ public class OpenEditorAction extends AnAction {
                 return;
             }
             new PreferencesUnparser().unparse(preferences, selectedFile);
+            new FilesPusher(project).pushFiles(unifiedNamesMap, dirBundle);
         } catch (IOException | PreferencesParser.ParseException | PreferencesUnparser.UnparseException e) {
             e.printStackTrace();
         }

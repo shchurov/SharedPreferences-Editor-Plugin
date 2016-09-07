@@ -14,20 +14,20 @@ public class AdbCommandBuilder {
         return "/data/data/" + applicationId + "/shared_prefs/";
     }
 
-    public String buildRemoveDir(String deviceMainDir) {
-        return "adb shell rm -rf " + deviceMainDir;
+    public String buildRemoveDir(String dir) {
+        return "adb shell rm -rf " + dir;
     }
 
     public String buildMakeDir(String path) {
         return "adb shell mkdir -p " + path;
     }
 
-    public String buildCopyPrefsToDir(String dirPath, String applicationId) {
-        return "adb shell cp " + getPrefsPath(applicationId) + "/* " + dirPath;
+    public String buildCopyPrefsToDir(String dir, String applicationId) {
+        return "adb shell cp " + getPrefsPath(applicationId) + "/* " + dir;
     }
 
-    public String buildGetDirFiles(String dirPath) {
-        return "adb shell ls " + dirPath;
+    public String buildGetDirFiles(String dir) {
+        return "adb shell ls " + dir;
     }
 
     public String buildMoveFile(String src, String dst) {
@@ -38,13 +38,12 @@ public class AdbCommandBuilder {
         return "adb pull " + src + " " + dst;
     }
 
-    // 0. Делаем shared_prefs chmod 777
-    // 1. Копируем файлы из shared_prefs в /sdcard/SharedPreferencesEditor
-    // 2. Создаем мэп имен файлов
-    // 3. Переименовываем файлы
-    // 4. Пулим файлы из SharedPreferencesEditor
-    // 5. Пушим файлы в SharedPreferencesEditor
-    // 6. Переименовываем файлы назад
-    // 4. Копируем файлы из SharedPreferencesEditor в shared_prefs
+    public String buildPushFile(String src, String dst) {
+        return "adb push " + src + " " + dst;
+    }
+
+    public String buildOverwritePrefs(String dir, String applicationId) {
+        return "adb shell cp " + dir + "/* " + getPrefsPath(applicationId);
+    }
 
 }

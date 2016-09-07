@@ -12,16 +12,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PreferencesParser {
 
     public List<Preference> parse(String filePath) throws ParseException {
         Document document = buildDocument(filePath);
-        return buildPreferencesList(document.getDocumentElement());
+        return extractPreferences(document);
     }
 
     private Document buildDocument(String filePath) throws ParseException {
@@ -33,9 +30,9 @@ public class PreferencesParser {
         }
     }
 
-    private List<Preference> buildPreferencesList(Element rootElement) throws ParseException {
-        List<Preference> list = new ArrayList<>();
-        NodeList nodes = rootElement.getChildNodes();
+    private List<Preference> extractPreferences(Document document) throws ParseException {
+        List<Preference> preferences = new ArrayList<>();
+        NodeList nodes = document.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             if (node.getNodeType() != Node.ELEMENT_NODE) {
@@ -44,9 +41,9 @@ public class PreferencesParser {
             Element element = (Element) node;
             String key = element.getAttribute("name");
             Object value = extractValue(element);
-            list.add(new Preference(key, value));
+            preferences.add(new Preference(key, value));
         }
-        return list;
+        return preferences;
     }
 
     private Object extractValue(Element element) throws ParseException {
@@ -67,7 +64,7 @@ public class PreferencesParser {
             case "float":
                 return Float.parseFloat(value);
             default:
-                throw new ParseException("Unknown type: " + type);
+                throw new ParseException(new IllegalArgumentException(type));
         }
     }
 
@@ -75,9 +72,9 @@ public class PreferencesParser {
         return node.getChildNodes().item(0).getNodeValue();
     }
 
-    private Set<String> extractStringSetValue(Node rootNode) {
-        Set<String> set = new HashSet<>();
-        NodeList nodes = rootNode.getChildNodes();
+    private Set<String> extractStringSetValue(Node parentNode) {
+        Set<String> set = new TreeSet<>();
+        NodeList nodes = parentNode.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             if (node.getNodeType() != Node.ELEMENT_NODE) {
@@ -90,10 +87,6 @@ public class PreferencesParser {
     }
 
     public static class ParseException extends Exception {
-        ParseException(String message) {
-            super(message);
-        }
-
         ParseException(Throwable cause) {
             super(cause);
         }

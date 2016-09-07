@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PreferencesPuller {
+public class FilesPuller {
 
     private static final String ANDROID_SEPARATOR = "/";
 
@@ -17,11 +17,11 @@ public class PreferencesPuller {
     private AdbCommandBuilder cmdBuilder = new AdbCommandBuilder();
     private AdbCommandExecutor cmdExecutor = new AdbCommandExecutor();
 
-    public PreferencesPuller(Project project) {
+    public FilesPuller(Project project) {
         this.project = project;
     }
 
-    public Map<String, String> pullPreferences(DirectoriesBundle bundle) throws IOException {
+    public Map<String, String> pullFiles(DirectoriesBundle bundle) throws IOException {
         String applicationId = ProjectUtils.getApplicationId(project);
         execute(cmdBuilder.buildSetPrefsPermissions(applicationId));
         execute(cmdBuilder.buildCopyPrefsToDir(bundle.deviceNormalDir, applicationId));
