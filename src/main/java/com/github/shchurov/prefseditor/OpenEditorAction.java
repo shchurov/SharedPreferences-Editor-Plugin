@@ -1,99 +1,53 @@
 package com.github.shchurov.prefseditor;
 
-import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
-import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
-import com.github.shchurov.prefseditor.helpers.ProjectUtils;
-import com.github.shchurov.prefseditor.presentation.ViewPreferencesDialog;
+import com.github.shchurov.prefseditor.helpers.*;
+import com.github.shchurov.prefseditor.model.DirectoriesBundle;
+import com.github.shchurov.prefseditor.model.Preference;
+import com.github.shchurov.prefseditor.presentation.ChooseFileDialog;
+import com.github.shchurov.prefseditor.presentation.FileContentDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OpenEditorAction extends AnAction {
 
-    private static final String ANDROID_SEPARATOR = "/";
-    private static final String MAIN_DIR_NAME = "prefs_editor";
-    private static final String NORMAL_DIR_NAME = "normal";
-    private static final String UNIFIED_DIR_NAME = "unified";
-
-    private AdbCommandBuilder commandBuilder = new AdbCommandBuilder();
-    private AdbCommandExecutor commandExecutor = new AdbCommandExecutor();
-    private String deviceMainDir;
-    private String deviceNormalDir;
-    private String deviceUnifiedDir;
-    private String localMainDir;
-    private String localUnifiedDir;
-    private Map<String, String> unifiedNamesMap = new HashMap<>();
-
     @Override
     public void actionPerformed(AnActionEvent action) {
         Project project = ProjectUtils.getProject(action);
-        String applicationId = ProjectUtils.getApplicationId(project);
-        ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
-            try {
-                initDeviceDirs();
-                initLocalDirs();
-                pullSharedPreferences(applicationId);
-                ApplicationManager.getApplication().invokeLater(() -> openViewPreferencesDialog(project));
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            DirectoriesBundle dirBundle = new DirectoriesCreator().createDirectories();
+            Map<String, String> unifiedNamesMap = new PreferencesPuller(project).pullPreferences(dirBundle);
+            String selectedName = new ChooseFileDialog(project, unifiedNamesMap.keySet()).showAndGetFileName();
+            if (selectedName == null) {
+                return;
             }
-        }, "Pulling Files", false, project);
-    }
-
-    private void initDeviceDirs() throws IOException {
-        String sdCard = execute(commandBuilder.buildGetSdCardPath());
-        deviceMainDir = sdCard + ANDROID_SEPARATOR + MAIN_DIR_NAME;
-        execute(commandBuilder.buildRemoveDir(deviceMainDir));
-        deviceNormalDir = deviceMainDir + ANDROID_SEPARATOR + NORMAL_DIR_NAME;
-        deviceUnifiedDir = deviceMainDir + ANDROID_SEPARATOR + UNIFIED_DIR_NAME;
-        execute(commandBuilder.buildMakeDir(deviceNormalDir));
-        execute(commandBuilder.buildMakeDir(deviceUnifiedDir));
-    }
-
-    private void initLocalDirs() throws IOException {
-        localMainDir = Files.createTempDirectory(null).toString();
-        localUnifiedDir = localMainDir + File.separator + UNIFIED_DIR_NAME;
-    }
-
-    private void pullSharedPreferences(String applicationId) throws IOException {
-        execute(commandBuilder.buildSetPrefsPermissions(applicationId));
-        execute(commandBuilder.buildCopyPrefsToDir(deviceNormalDir, applicationId));
-        String filesStr = execute(commandBuilder.buildGetDirFiles(deviceNormalDir));
-        String[] files = filesStr.split("\n\n");
-        buildUnifiedNamesMap(files);
-        unifyFileNames();
-        execute(commandBuilder.buildPullFile(deviceUnifiedDir, localMainDir));
-        System.out.println(localUnifiedDir);
-    }
-
-    private String execute(String cmd) throws IOException {
-        return commandExecutor.execute(cmd);
-    }
-
-    private void buildUnifiedNamesMap(String[] files) {
-        for (int i = 0; i < files.length; i++) {
-            unifiedNamesMap.put(files[i], "pref" + i + ".xml");
+            String selectedFile = dirBundle.localUnifiedDir + File.separator + unifiedNamesMap.get(selectedName);
+            List<Preference> preferences = new PreferencesParser().parse(selectedFile);
+            preferences = new FileContentDialog(project, preferences).showAndGetModifiedPreferences();
+            if (preferences == null) {
+                return;
+            }
+            new PreferencesUnparser().unparse(preferences, selectedFile);
+        } catch (IOException | PreferencesParser.ParseException | PreferencesUnparser.UnparseException e) {
+            e.printStackTrace();
         }
+
+//        ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
+//            try {
+//                initDeviceDirs();
+//                initLocalDirs();
+//                pullSharedPreferences(applicationId);
+//                ApplicationManager.getApplication().invokeLater(() -> openViewPreferencesDialog(project));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }, "Pulling Files", false, project);
     }
 
-    private void unifyFileNames() throws IOException {
-        for (Map.Entry<String, String> entry : unifiedNamesMap.entrySet()) {
-            String src = deviceNormalDir + ANDROID_SEPARATOR + entry.getKey();
-            String dst = deviceUnifiedDir + ANDROID_SEPARATOR + entry.getValue();
-            execute(commandBuilder.buildMoveFile(src, dst));
-        }
-    }
-
-    private void openViewPreferencesDialog(Project project) {
-        new ViewPreferencesDialog(project, localUnifiedDir, unifiedNamesMap).show();
-    }
 
 }

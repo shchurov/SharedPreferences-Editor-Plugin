@@ -14,6 +14,12 @@ public class Preference {
         type = extractType(value);
     }
 
+    public Preference(Preference src) {
+        key = src.getKey();
+        value = src.getValue();
+        type = src.getType();
+    }
+
     private Type extractType(Object value) {
         if (value instanceof Integer) {
             return Type.INTEGER;

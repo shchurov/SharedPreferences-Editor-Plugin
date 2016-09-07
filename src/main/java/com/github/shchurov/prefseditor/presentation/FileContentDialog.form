@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.github.shchurov.prefseditor.presentation.FileContentDialog">
+  <grid id="27dc6" binding="rootPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="8" y="6" width="491" height="287"/>
+    </constraints>
+    <properties/>
+    <border type="empty">
+      <size top="15" left="0" bottom="0" right="0"/>
+    </border>
+    <children>
+      <scrollpane id="42d8e" binding="scrollPane">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="32da7" class="javax.swing.JTable" binding="contentTable">
+            <constraints/>
+            <properties>
+              <font swing-font="Table.font"/>
+              <preferredScrollableViewportSize width="450" height="250"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+    </children>
+  </grid>
+</form>

@@ -63,8 +63,8 @@ public class EditValueDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        preference.setValue(parseNewValue());
         super.doOKAction();
+        preference.setValue(parseNewValue());
     }
 
 }
