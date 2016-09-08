@@ -16,20 +16,18 @@ public class ProjectUtils {
         return event.getData(PlatformDataKeys.PROJECT);
     }
 
-    public static String getDefaultActivityName(Project project) {
+    static String getDefaultActivityName(Project project) {
         AndroidFacet facet = getFacet(project);
-        // TODO:
         return DefaultActivityLocator.getDefaultLauncherActivityName(project, facet.getManifest());
     }
 
     private static AndroidFacet getFacet(Project project) {
         List<AndroidFacet> facets = new ArrayList<>();
         facets.addAll(AndroidUtils.getApplicationFacets(project));
-        // TODO: handle if many facets
         return facets.get(0);
     }
 
-    public static String getApplicationId(Project project) {
+    static String getApplicationId(Project project) {
         AndroidFacet facet = getFacet(project);
         return facet.getAndroidModuleInfo().getPackage();
     }

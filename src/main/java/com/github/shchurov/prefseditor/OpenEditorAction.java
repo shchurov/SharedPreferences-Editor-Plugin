@@ -17,6 +17,11 @@ import java.util.Map;
 public class OpenEditorAction extends AnAction {
 
     //TODO: handle daemon not started
+    //TODO: handle many devices
+    //TODO: handle many facets
+    //TODO: string set edit
+    //TODO: add entries
+    //TODO: remove entries
 
     @Override
     public void actionPerformed(AnActionEvent action) {

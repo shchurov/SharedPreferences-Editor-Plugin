@@ -28,9 +28,10 @@ public class FilesPusher {
         execute(cmdBuilder.buildPushFile(bundle.localUnifiedDir, bundle.deviceMainDir));
         reverseUnifyFileNames(unifiedNamesMap, bundle);
         String applicationId = ProjectUtils.getApplicationId(project);
+        killApp();
         execute(cmdBuilder.buildOverwritePrefs(bundle.deviceNormalDir, applicationId));
         execute(cmdBuilder.buildRemoveDir(bundle.deviceMainDir));
-        restartApp(project);
+        startApp();
         return null;
     }
 
@@ -50,9 +51,13 @@ public class FilesPusher {
         }
     }
 
-    private void restartApp(Project project) {
+    private void killApp() {
         String applicationId = ProjectUtils.getApplicationId(project);
         execute(cmdBuilder.buildKillApp(applicationId));
+    }
+
+    private void startApp() {
+        String applicationId = ProjectUtils.getApplicationId(project);
         String activityName = ProjectUtils.getDefaultActivityName(project);
         execute(cmdBuilder.buildStartApp(applicationId, activityName));
     }
