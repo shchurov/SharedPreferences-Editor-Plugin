@@ -1,5 +1,6 @@
 package com.github.shchurov.prefseditor.helpers;
 
+import com.github.shchurov.prefseditor.helpers.exceptions.UnparsePreferencesException;
 import com.github.shchurov.prefseditor.model.Preference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,22 +17,22 @@ import java.util.Set;
 
 public class PreferencesUnparser {
 
-    public void unparse(List<Preference> preferences, String filePath) throws UnparseException {
+    public void unparse(List<Preference> preferences, String filePath) throws UnparsePreferencesException {
         Document document = createDocument();
         putPreferences(preferences, document);
         saveDocument(document, filePath);
     }
 
-    private Document createDocument() throws UnparseException {
+    private Document createDocument() {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             return builder.newDocument();
         } catch (ParserConfigurationException e) {
-            throw new UnparseException(e);
+            throw new UnparsePreferencesException(e);
         }
     }
 
-    private void putPreferences(List<Preference> preferences, Document document) throws UnparseException {
+    private void putPreferences(List<Preference> preferences, Document document) {
         Element rootElement = document.createElement("map");
         document.appendChild(rootElement);
         for (Preference p : preferences) {
@@ -43,7 +44,7 @@ public class PreferencesUnparser {
         }
     }
 
-    private String getTag(Preference.Type type) throws UnparseException {
+    private String getTag(Preference.Type type) {
         switch (type) {
             case BOOLEAN:
                 return "boolean";
@@ -58,7 +59,7 @@ public class PreferencesUnparser {
             case STRING_SET:
                 return "set";
             default:
-                throw new UnparseException(new IllegalStateException(type.toString()));
+                throw new UnparsePreferencesException(new IllegalStateException(type.toString()));
         }
     }
 
@@ -92,20 +93,14 @@ public class PreferencesUnparser {
         }
     }
 
-    private void saveDocument(Document document, String filePath) throws UnparseException {
+    private void saveDocument(Document document, String filePath) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             Source src = new DOMSource(document);
             Result dst = new StreamResult(new File(filePath));
             transformer.transform(src, dst);
         } catch (TransformerException e) {
-            throw new UnparseException(e);
-        }
-    }
-
-    public static class UnparseException extends Exception {
-        UnparseException(Throwable cause) {
-            super(cause);
+            throw new UnparsePreferencesException(e);
         }
     }
 

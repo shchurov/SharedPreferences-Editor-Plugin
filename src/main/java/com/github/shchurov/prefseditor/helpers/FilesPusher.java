@@ -2,6 +2,7 @@ package com.github.shchurov.prefseditor.helpers;
 
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
+import com.github.shchurov.prefseditor.helpers.exceptions.PushFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
 
@@ -9,8 +10,6 @@ import java.io.IOException;
 import java.util.Map;
 
 public class FilesPusher {
-
-    private static final String ANDROID_SEPARATOR = "/";
 
     private Project project;
     private AdbCommandBuilder cmdBuilder = new AdbCommandBuilder();
@@ -20,24 +19,42 @@ public class FilesPusher {
         this.project = project;
     }
 
-    public void pushFiles(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) throws IOException {
+    public void pushFiles(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) throws PushFilesException {
+        ProgressManagerUtils.runWithProgressDialog(project, "Applying Changes",
+                () -> performPushFiles(unifiedNamesMap, bundle));
+    }
+
+    private Void performPushFiles(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) {
         execute(cmdBuilder.buildPushFile(bundle.localUnifiedDir, bundle.deviceMainDir));
         reverseUnifyFileNames(unifiedNamesMap, bundle);
         String applicationId = ProjectUtils.getApplicationId(project);
         execute(cmdBuilder.buildOverwritePrefs(bundle.deviceNormalDir, applicationId));
+        execute(cmdBuilder.buildRemoveDir(bundle.deviceMainDir));
+        restartApp(project);
+        return null;
     }
 
-    private void reverseUnifyFileNames(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle)
-            throws IOException {
+    private String execute(String cmd) {
+        try {
+            return cmdExecutor.execute(cmd);
+        } catch (IOException e) {
+            throw new PushFilesException(e);
+        }
+    }
+
+    private void reverseUnifyFileNames(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) {
         for (Map.Entry<String, String> entry : unifiedNamesMap.entrySet()) {
-            String src = bundle.deviceUnifiedDir + ANDROID_SEPARATOR + entry.getValue();
-            String dst = bundle.deviceNormalDir + ANDROID_SEPARATOR + entry.getKey();
+            String src = bundle.deviceUnifiedDir + "/" + entry.getValue();
+            String dst = bundle.deviceNormalDir + "/" + entry.getKey();
             execute(cmdBuilder.buildMoveFile(src, dst));
         }
     }
 
-    private String execute(String cmd) throws IOException {
-        return cmdExecutor.execute(cmd);
+    private void restartApp(Project project) {
+        String applicationId = ProjectUtils.getApplicationId(project);
+        execute(cmdBuilder.buildKillApp(applicationId));
+        String activityName = ProjectUtils.getDefaultActivityName(project);
+        execute(cmdBuilder.buildStartApp(applicationId, activityName));
     }
 
 }

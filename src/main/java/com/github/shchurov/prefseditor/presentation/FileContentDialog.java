@@ -10,7 +10,6 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FileContentDialog extends DialogWrapper {
@@ -21,22 +20,15 @@ public class FileContentDialog extends DialogWrapper {
     private JTable contentTable;
 
     private PreferencesTableModel tableModel = new PreferencesTableModel();
-    private List<Preference> preferences = new ArrayList<>();
+    private List<Preference> preferences;
 
-    public FileContentDialog(@Nullable Project project, List<Preference> originalPreferences) {
+    public FileContentDialog(@Nullable Project project, List<Preference> preferences) {
         super(project);
         this.project = project;
-        copyOriginalPreferences(originalPreferences);
+        this.preferences = preferences;
         setTitle("SharedPreferences Editor");
         setupTable();
         init();
-    }
-
-    @SuppressWarnings("Convert2streamapi")
-    private void copyOriginalPreferences(List<Preference> originalPreferences) {
-        for (Preference p : originalPreferences) {
-            preferences.add(new Preference(p));
-        }
     }
 
     private void setupTable() {
@@ -75,11 +67,6 @@ public class FileContentDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         return rootPanel;
-    }
-
-    public List<Preference> showAndGetModifiedPreferences() {
-        show();
-        return isOK() ? preferences : null;
     }
 
     private static class PreferencesTableModel extends AbstractTableModel {

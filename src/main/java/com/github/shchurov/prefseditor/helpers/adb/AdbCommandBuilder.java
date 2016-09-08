@@ -14,6 +14,10 @@ public class AdbCommandBuilder {
         return "/data/data/" + applicationId + "/shared_prefs/";
     }
 
+    public String buildClearDir(String dir) {
+        return "adb shell rm -rf " + dir + "/*";
+    }
+
     public String buildRemoveDir(String dir) {
         return "adb shell rm -rf " + dir;
     }
@@ -44,6 +48,14 @@ public class AdbCommandBuilder {
 
     public String buildOverwritePrefs(String dir, String applicationId) {
         return "adb shell cp " + dir + "/* " + getPrefsPath(applicationId);
+    }
+
+    public String buildKillApp(String applicationId) {
+        return "adb shell am force-stop " + applicationId;
+    }
+
+    public String buildStartApp(String applicationId, String defaultActivityName) {
+        return "adb shell am start " + applicationId + "/" + defaultActivityName;
     }
 
 }

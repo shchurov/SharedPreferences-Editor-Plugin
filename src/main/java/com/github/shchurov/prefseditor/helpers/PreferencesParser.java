@@ -1,5 +1,6 @@
 package com.github.shchurov.prefseditor.helpers;
 
+import com.github.shchurov.prefseditor.helpers.exceptions.ParsePreferencesException;
 import com.github.shchurov.prefseditor.model.Preference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,21 +17,21 @@ import java.util.*;
 
 public class PreferencesParser {
 
-    public List<Preference> parse(String filePath) throws ParseException {
+    public List<Preference> parse(String filePath) throws ParsePreferencesException {
         Document document = buildDocument(filePath);
         return extractPreferences(document);
     }
 
-    private Document buildDocument(String filePath) throws ParseException {
+    private Document buildDocument(String filePath) {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             return builder.parse(new File(filePath));
         } catch (SAXException | IOException | ParserConfigurationException e) {
-            throw new ParseException(e);
+            throw new ParsePreferencesException(e);
         }
     }
 
-    private List<Preference> extractPreferences(Document document) throws ParseException {
+    private List<Preference> extractPreferences(Document document) {
         List<Preference> preferences = new ArrayList<>();
         NodeList nodes = document.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -46,7 +47,7 @@ public class PreferencesParser {
         return preferences;
     }
 
-    private Object extractValue(Element element) throws ParseException {
+    private Object extractValue(Element element) {
         String type = element.getTagName();
         if ("string".equals(type)) {
             return extractStringValue(element);
@@ -64,7 +65,7 @@ public class PreferencesParser {
             case "float":
                 return Float.parseFloat(value);
             default:
-                throw new ParseException(new IllegalArgumentException(type));
+                throw new ParsePreferencesException(new IllegalArgumentException(type));
         }
     }
 
@@ -84,12 +85,6 @@ public class PreferencesParser {
             set.add(value);
         }
         return set;
-    }
-
-    public static class ParseException extends Exception {
-        ParseException(Throwable cause) {
-            super(cause);
-        }
     }
 
 }
