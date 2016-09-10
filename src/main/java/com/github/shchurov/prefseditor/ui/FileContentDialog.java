@@ -1,4 +1,4 @@
-package com.github.shchurov.prefseditor.presentation;
+package com.github.shchurov.prefseditor.ui;
 
 import com.github.shchurov.prefseditor.model.Preference;
 import com.intellij.openapi.project.Project;
@@ -17,9 +17,8 @@ public class FileContentDialog extends DialogWrapper {
     private Project project;
     private JPanel rootPanel;
     private JScrollPane scrollPane;
-    private JTable contentTable;
-
-    private PreferencesTableModel tableModel = new PreferencesTableModel();
+    private JTable table;
+    private CustomTableModel tableModel = new CustomTableModel();
     private List<Preference> preferences;
 
     public FileContentDialog(@Nullable Project project, List<Preference> preferences) {
@@ -32,19 +31,18 @@ public class FileContentDialog extends DialogWrapper {
     }
 
     private void setupTable() {
-        tableModel.setPreferencesList(preferences);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        contentTable.setRowHeight(25);
-        contentTable.setBorder(BorderFactory.createLineBorder(contentTable.getGridColor(), 1));
-        contentTable.getTableHeader().setReorderingAllowed(false);
-        contentTable.setModel(tableModel);
-        contentTable.addMouseListener(new MouseAdapter() {
+        table.setRowHeight(25);
+        table.setBorder(BorderFactory.createLineBorder(table.getGridColor(), 1));
+        table.getTableHeader().setReorderingAllowed(false);
+        table.setModel(tableModel);
+        table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     Point p = e.getPoint();
-                    if (contentTable.columnAtPoint(p) == 2) {
-                        handleEditValueClick(contentTable.rowAtPoint(p));
+                    if (table.columnAtPoint(p) == 2) {
+                        handleEditValueClick(table.rowAtPoint(p));
                     }
                 }
             }
@@ -56,7 +54,7 @@ public class FileContentDialog extends DialogWrapper {
         if (preference.getType() == Preference.Type.BOOLEAN) {
             preference.setValue(!(boolean) preference.getValue());
         } else if (preference.getType() == Preference.Type.STRING_SET) {
-            //TODO:
+            new EditStringSetDialog(project, preference).show();
         } else {
             new EditValueDialog(project, preference).show();
         }
@@ -69,24 +67,18 @@ public class FileContentDialog extends DialogWrapper {
         return rootPanel;
     }
 
-    private static class PreferencesTableModel extends AbstractTableModel {
-        private static final String[] COLUMN_NAMES = {"Key", "Type", "Value"};
+    private class CustomTableModel extends AbstractTableModel {
 
-        private List<Preference> preferences;
-
-        void setPreferencesList(List<Preference> preferences) {
-            this.preferences = preferences;
-            fireTableDataChanged();
-        }
+        private final String[] columnNames = {"Key", "Type", "Value"};
 
         @Override
         public int getRowCount() {
-            return preferences == null ? 0 : preferences.size();
+            return preferences.size();
         }
 
         @Override
         public String getColumnName(int column) {
-            return COLUMN_NAMES[column];
+            return columnNames[column];
         }
 
         @Override

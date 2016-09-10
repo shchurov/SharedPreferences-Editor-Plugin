@@ -1,4 +1,4 @@
-package com.github.shchurov.prefseditor.presentation;
+package com.github.shchurov.prefseditor.ui;
 
 import com.github.shchurov.prefseditor.model.Preference;
 import com.intellij.openapi.project.Project;

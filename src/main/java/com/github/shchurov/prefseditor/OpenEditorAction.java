@@ -4,8 +4,8 @@ import com.github.shchurov.prefseditor.helpers.*;
 import com.github.shchurov.prefseditor.helpers.exceptions.*;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.github.shchurov.prefseditor.model.Preference;
-import com.github.shchurov.prefseditor.presentation.ChooseFileDialog;
-import com.github.shchurov.prefseditor.presentation.FileContentDialog;
+import com.github.shchurov.prefseditor.ui.ChooseFileDialog;
+import com.github.shchurov.prefseditor.ui.FileContentDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -19,9 +19,9 @@ public class OpenEditorAction extends AnAction {
     //TODO: handle daemon not started
     //TODO: handle many devices
     //TODO: handle many facets
-    //TODO: string set edit
     //TODO: add entries
     //TODO: remove entries
+    //TODO: error handling
 
     @Override
     public void actionPerformed(AnActionEvent action) {

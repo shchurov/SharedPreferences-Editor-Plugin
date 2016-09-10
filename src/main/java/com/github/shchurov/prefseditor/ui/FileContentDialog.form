@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.github.shchurov.prefseditor.presentation.FileContentDialog">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.github.shchurov.prefseditor.ui.FileContentDialog">
   <grid id="27dc6" binding="rootPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
       <xy x="8" y="6" width="491" height="287"/>
@@ -14,7 +14,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="32da7" class="javax.swing.JTable" binding="contentTable">
+          <component id="32da7" class="javax.swing.JTable" binding="table">
             <constraints/>
             <properties>
               <font swing-font="Table.font"/>
