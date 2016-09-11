@@ -17,11 +17,13 @@ public class DirectoriesCreator {
     private static final String UNIFIED_DIR_NAME = "unified";
 
     private Project project;
-    private AdbCommandBuilder cmdBuilder = new AdbCommandBuilder();
-    private AdbCommandExecutor cmdExecutor = new AdbCommandExecutor();
+    private AdbCommandBuilder cmdBuilder;
+    private AdbCommandExecutor cmdExecutor;
 
-    public DirectoriesCreator(Project project) {
+    public DirectoriesCreator(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor) {
         this.project = project;
+        this.cmdBuilder = cmdBuilder;
+        this.cmdExecutor = cmdExecutor;
     }
 
     public DirectoriesBundle createDirectories() throws CreateDirectoriesException {

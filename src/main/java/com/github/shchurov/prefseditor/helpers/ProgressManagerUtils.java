@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-class ProgressManagerUtils {
+public class ProgressManagerUtils {
 
-    static <T, E extends Exception> T runWithProgressDialog(Project project, String title,
+    public static <T, E extends Exception> T runWithProgressDialog(Project project, String title,
             Supplier<T> body) throws E {
         return ProgressManager.getInstance().run(new Task.WithResult<T, E>(project, title, false) {
             @Override

@@ -13,11 +13,13 @@ import java.util.Map;
 public class FilesPuller {
 
     private Project project;
-    private AdbCommandBuilder cmdBuilder = new AdbCommandBuilder();
-    private AdbCommandExecutor cmdExecutor = new AdbCommandExecutor();
+    private AdbCommandBuilder cmdBuilder;
+    private AdbCommandExecutor cmdExecutor;
 
-    public FilesPuller(Project project) {
+    public FilesPuller(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor) {
         this.project = project;
+        this.cmdBuilder = cmdBuilder;
+        this.cmdExecutor = cmdExecutor;
     }
 
     public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException {

@@ -58,4 +58,8 @@ public class AdbCommandBuilder {
         return "adb shell am start " + applicationId + "/" + defaultActivityName;
     }
 
+    String buildStartServer() {
+        return "adb start-server";
+    }
+
 }

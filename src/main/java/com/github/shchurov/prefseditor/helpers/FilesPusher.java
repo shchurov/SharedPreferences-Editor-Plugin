@@ -12,11 +12,13 @@ import java.util.Map;
 public class FilesPusher {
 
     private Project project;
-    private AdbCommandBuilder cmdBuilder = new AdbCommandBuilder();
-    private AdbCommandExecutor cmdExecutor = new AdbCommandExecutor();
+    private AdbCommandBuilder cmdBuilder;
+    private AdbCommandExecutor cmdExecutor;
 
-    public FilesPusher(Project project) {
+    public FilesPusher(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor) {
         this.project = project;
+        this.cmdBuilder = cmdBuilder;
+        this.cmdExecutor = cmdExecutor;
     }
 
     public void pushFiles(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) throws PushFilesException {
