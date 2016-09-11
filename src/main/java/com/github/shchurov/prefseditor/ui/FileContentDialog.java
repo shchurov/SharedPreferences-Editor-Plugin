@@ -18,6 +18,8 @@ public class FileContentDialog extends DialogWrapper {
     private JPanel rootPanel;
     private JScrollPane scrollPane;
     private JTable table;
+    private JButton addBtn;
+    private JButton removeBtn;
     private CustomTableModel tableModel = new CustomTableModel();
     private List<Preference> preferences;
 
@@ -27,6 +29,8 @@ public class FileContentDialog extends DialogWrapper {
         this.preferences = preferences;
         setTitle("SharedPreferences Editor");
         setupTable();
+        setupAddButton();
+        setupRemoveButton();
         init();
     }
 
@@ -50,15 +54,39 @@ public class FileContentDialog extends DialogWrapper {
     }
 
     private void handleEditValueClick(int index) {
-        Preference preference = preferences.get(index);
-        if (preference.getType() == Preference.Type.BOOLEAN) {
-            preference.setValue(!(boolean) preference.getValue());
-        } else if (preference.getType() == Preference.Type.STRING_SET) {
-            new EditStringSetDialog(project, preference).show();
+        Preference p = preferences.get(index);
+        if (p.getType() == Preference.Type.BOOLEAN) {
+            p.setValue(!(boolean) p.getValue());
+        } else if (p.getType() == Preference.Type.STRING_SET) {
+            new EditStringSetDialog(project, p).show();
         } else {
-            new EditValueDialog(project, preference).show();
+            new EditValueDialog(project, p).show();
         }
         tableModel.fireTableCellUpdated(index, 2);
+    }
+
+    private void setupAddButton() {
+        addBtn.addActionListener(e -> {
+            Preference p = new CreatePreferenceDialog(project).showAndGetPreference();
+            if (p != null) {
+                preferences.add(p);
+                tableModel.fireTableRowsInserted(preferences.size() - 1, preferences.size() - 1);
+            }
+        });
+    }
+
+    private void setupRemoveButton() {
+        removeBtn.addActionListener(e -> {
+            int i = table.getSelectedRow();
+            if (i == -1) {
+                return;
+            }
+            preferences.remove(i);
+            tableModel.fireTableRowsDeleted(i, i);
+            if (preferences.size() > 0) {
+                table.changeSelection(i, 0, false, false);
+            }
+        });
     }
 
     @Nullable
