@@ -1,12 +1,13 @@
 package com.github.shchurov.prefseditor;
 
+import com.android.ddmlib.IDevice;
 import com.github.shchurov.prefseditor.helpers.*;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
-import com.github.shchurov.prefseditor.helpers.adb.AdbServerStarter;
 import com.github.shchurov.prefseditor.helpers.exceptions.*;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.github.shchurov.prefseditor.model.Preference;
+import com.github.shchurov.prefseditor.ui.ChooseDeviceDialog;
 import com.github.shchurov.prefseditor.ui.ChooseFileDialog;
 import com.github.shchurov.prefseditor.ui.FileContentDialog;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -19,7 +20,6 @@ import java.util.Map;
 
 public class OpenEditorAction extends AnAction {
 
-    //TODO: handle many devices
     //TODO: handle many facets
     //TODO: add entries
     //TODO: remove entries
@@ -29,9 +29,12 @@ public class OpenEditorAction extends AnAction {
     public void actionPerformed(AnActionEvent action) {
         try {
             Project project = ProjectUtils.getProject(action);
-            AdbCommandBuilder cmdBuilder = new AdbCommandBuilder();
+            IDevice device = new ChooseDeviceDialog(project).showAndGetDevice();
+            if (device == null) {
+                return;
+            }
+            AdbCommandBuilder cmdBuilder = new AdbCommandBuilder(device.getSerialNumber());
             AdbCommandExecutor cmdExecutor = new AdbCommandExecutor();
-            new AdbServerStarter(project, cmdBuilder, cmdExecutor).start();
             DirectoriesBundle dirBundle = new DirectoriesCreator(project, cmdBuilder, cmdExecutor).createDirectories();
             Map<String, String> unifiedNamesMap = new FilesPuller(project, cmdBuilder, cmdExecutor)
                     .pullFiles(dirBundle);
@@ -48,7 +51,7 @@ public class OpenEditorAction extends AnAction {
             new PreferencesUnparser().unparse(preferences, selectedFile);
             new FilesPusher(project, cmdBuilder, cmdExecutor).pushFiles(unifiedNamesMap, dirBundle);
         } catch (CreateDirectoriesException | ParsePreferencesException | PullFilesException | PushFilesException
-                | UnparsePreferencesException | StartAdbServerException e) {
+                | UnparsePreferencesException | GetDeviceListException | NoDeviceFoundException e) {
             e.printStackTrace();
         }
     }

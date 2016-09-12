@@ -2,12 +2,18 @@ package com.github.shchurov.prefseditor.helpers.adb;
 
 public class AdbCommandBuilder {
 
+    private String shellPrefix;
+
+    public AdbCommandBuilder(String deviceId) {
+        shellPrefix = "adb -s " + deviceId + " shell ";
+    }
+
     public String buildGetSdCardPath() {
-        return "adb shell echo $EXTERNAL_STORAGE";
+        return shellPrefix + "echo $EXTERNAL_STORAGE";
     }
 
     public String buildSetPrefsPermissions(String applicationId) {
-        return "adb shell run-as " + applicationId + " chmod -R 777 " + getPrefsPath(applicationId);
+        return shellPrefix + "run-as " + applicationId + " chmod -R 777 " + getPrefsPath(applicationId);
     }
 
     private String getPrefsPath(String applicationId) {
@@ -15,27 +21,27 @@ public class AdbCommandBuilder {
     }
 
     public String buildClearDir(String dir) {
-        return "adb shell rm -rf " + dir + "/*";
+        return shellPrefix + "rm -rf " + dir + "/*";
     }
 
     public String buildRemoveDir(String dir) {
-        return "adb shell rm -rf " + dir;
+        return shellPrefix + "rm -rf " + dir;
     }
 
     public String buildMakeDir(String path) {
-        return "adb shell mkdir -p " + path;
+        return shellPrefix + "mkdir -p " + path;
     }
 
     public String buildCopyPrefsToDir(String dir, String applicationId) {
-        return "adb shell cp " + getPrefsPath(applicationId) + "/* " + dir;
+        return shellPrefix + "cp " + getPrefsPath(applicationId) + "/* " + dir;
     }
 
     public String buildGetDirFiles(String dir) {
-        return "adb shell ls " + dir;
+        return shellPrefix + "ls " + dir;
     }
 
     public String buildMoveFile(String src, String dst) {
-        return "adb shell mv " + src + " " + dst;
+        return shellPrefix + "mv " + src + " " + dst;
     }
 
     public String buildPullFile(String src, String dst) {
@@ -47,19 +53,15 @@ public class AdbCommandBuilder {
     }
 
     public String buildOverwritePrefs(String dir, String applicationId) {
-        return "adb shell cp " + dir + "/* " + getPrefsPath(applicationId);
+        return shellPrefix + "cp " + dir + "/* " + getPrefsPath(applicationId);
     }
 
     public String buildKillApp(String applicationId) {
-        return "adb shell am force-stop " + applicationId;
+        return shellPrefix + "am force-stop " + applicationId;
     }
 
     public String buildStartApp(String applicationId, String defaultActivityName) {
-        return "adb shell am start " + applicationId + "/" + defaultActivityName;
-    }
-
-    String buildStartServer() {
-        return "adb start-server";
+        return shellPrefix + "am start " + applicationId + "/" + defaultActivityName;
     }
 
 }

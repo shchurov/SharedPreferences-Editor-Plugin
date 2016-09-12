@@ -3,6 +3,7 @@ package com.github.shchurov.prefseditor.helpers;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
 import com.github.shchurov.prefseditor.helpers.exceptions.CreateDirectoriesException;
+import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
 
@@ -51,7 +52,7 @@ public class DirectoriesCreator {
     private String execute(String command) {
         try {
             return cmdExecutor.execute(command);
-        } catch (IOException e) {
+        } catch (ExecuteAdbCommandException e) {
             throw new CreateDirectoriesException(e);
         }
     }

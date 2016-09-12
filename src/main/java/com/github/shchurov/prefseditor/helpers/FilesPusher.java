@@ -2,11 +2,11 @@ package com.github.shchurov.prefseditor.helpers;
 
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
+import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
 import com.github.shchurov.prefseditor.helpers.exceptions.PushFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class FilesPusher {
@@ -40,7 +40,7 @@ public class FilesPusher {
     private String execute(String cmd) {
         try {
             return cmdExecutor.execute(cmd);
-        } catch (IOException e) {
+        } catch (ExecuteAdbCommandException e) {
             throw new PushFilesException(e);
         }
     }

@@ -2,11 +2,11 @@ package com.github.shchurov.prefseditor.helpers;
 
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
+import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
 import com.github.shchurov.prefseditor.helpers.exceptions.PullFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,11 +35,7 @@ public class FilesPuller {
         String filesStr = execute(cmdBuilder.buildGetDirFiles(bundle.deviceNormalDir));
         String[] files = filesStr.split("\n\n");
         Map<String, String> unifiedNamesMap = buildUnifiedNamesMap(files);
-        try {
-            unifyFileNames(unifiedNamesMap, bundle);
-        } catch (IOException e) {
-            throw new PullFilesException(e);
-        }
+        unifyFileNames(unifiedNamesMap, bundle);
         execute(cmdBuilder.buildPullFile(bundle.deviceUnifiedDir, bundle.localMainDir));
         return unifiedNamesMap;
     }
@@ -47,7 +43,7 @@ public class FilesPuller {
     private String execute(String cmd) {
         try {
             return cmdExecutor.execute(cmd);
-        } catch (IOException e) {
+        } catch (ExecuteAdbCommandException e) {
             throw new PullFilesException(e);
         }
     }
@@ -60,7 +56,7 @@ public class FilesPuller {
         return map;
     }
 
-    private void unifyFileNames(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) throws IOException {
+    private void unifyFileNames(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) {
         for (Map.Entry<String, String> entry : unifiedNamesMap.entrySet()) {
             String src = bundle.deviceNormalDir + "/" + entry.getKey();
             String dst = bundle.deviceUnifiedDir + "/" + entry.getValue();
