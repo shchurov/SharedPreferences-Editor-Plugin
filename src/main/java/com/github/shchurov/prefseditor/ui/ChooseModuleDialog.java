@@ -1,6 +1,5 @@
 package com.github.shchurov.prefseditor.ui;
 
-import com.github.shchurov.prefseditor.helpers.ProjectUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.android.facet.AndroidFacet;
@@ -11,14 +10,14 @@ import java.util.List;
 
 public class ChooseModuleDialog extends DialogWrapper {
 
+    private List<AndroidFacet> facets;
     private JPanel rootPanel;
     private JComboBox<String> comboBox;
-    private List<AndroidFacet> facets;
 
-    public ChooseModuleDialog(@Nullable Project project) {
+    public ChooseModuleDialog(@Nullable Project project, List<AndroidFacet> facets) {
         super(project);
+        this.facets = facets;
         setTitle("Choose Module");
-        facets = ProjectUtils.getFacets(project);
         setupComboBox();
         init();
     }

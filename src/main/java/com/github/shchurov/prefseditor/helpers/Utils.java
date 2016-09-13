@@ -1,24 +1,17 @@
 package com.github.shchurov.prefseditor.helpers;
 
 import com.android.tools.idea.run.activity.DefaultActivityLocator;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.android.dom.manifest.Manifest;
 import org.jetbrains.android.facet.AndroidFacet;
-import org.jetbrains.android.util.AndroidUtils;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.function.Supplier;
 
-public class ProjectUtils {
-
-    public static Project getProject(AnActionEvent event) {
-        return event.getData(PlatformDataKeys.PROJECT);
-    }
-
-    public static List<AndroidFacet> getFacets(Project project) {
-        return AndroidUtils.getApplicationFacets(project);
-    }
+class Utils {
 
     static String getDefaultActivityName(Project project, AndroidFacet facet) {
         Manifest manifest = facet.getManifest();
@@ -31,6 +24,17 @@ public class ProjectUtils {
 
     static String getApplicationId(AndroidFacet facet) {
         return facet.getAndroidModuleInfo().getPackage();
+    }
+
+    static <T, E extends Exception> T runWithProgressDialog(Project project, String title,
+            Supplier<T> body) throws E {
+        return ProgressManager.getInstance().run(new Task.WithResult<T, E>(project, title, false) {
+            @Override
+            protected T compute(@NotNull ProgressIndicator indicator) throws E {
+                indicator.setIndeterminate(true);
+                return body.get();
+            }
+        });
     }
 
 }

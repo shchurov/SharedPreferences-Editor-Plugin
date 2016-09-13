@@ -1,7 +1,6 @@
 package com.github.shchurov.prefseditor.helpers;
 
-import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
-import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
+import com.github.shchurov.prefseditor.helpers.adb.AdbShellHelper;
 import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
 import com.github.shchurov.prefseditor.helpers.exceptions.PullFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
@@ -14,44 +13,39 @@ import java.util.Map;
 public class FilesPuller {
 
     private Project project;
-    private AdbCommandBuilder cmdBuilder;
-    private AdbCommandExecutor cmdExecutor;
+    private AdbShellHelper shellHelper;
     private String applicationId;
 
-    public FilesPuller(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor,
-            AndroidFacet facet) {
+    public FilesPuller(Project project, AdbShellHelper shellHelper, AndroidFacet facet) {
         this.project = project;
-        this.cmdBuilder = cmdBuilder;
-        this.cmdExecutor = cmdExecutor;
-        applicationId = ProjectUtils.getApplicationId(facet);
+        this.shellHelper = shellHelper;
+        applicationId = Utils.getApplicationId(facet);
     }
 
     public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException {
-        return ProgressManagerUtils.runWithProgressDialog(project, "Pulling Files", () -> performPullFiles(bundle));
+        return Utils.runWithProgressDialog(project, "Pulling Files", () -> {
+            try {
+                return performPullFiles(bundle);
+            } catch (ExecuteAdbCommandException e) {
+                throw new PullFilesException(e);
+            }
+        });
     }
 
     private Map<String, String> performPullFiles(DirectoriesBundle bundle) {
-        execute(cmdBuilder.buildClearDir(bundle.deviceNormalDir));
-        execute(cmdBuilder.buildClearDir(bundle.deviceUnifiedDir));
-        execute(cmdBuilder.buildSetPrefsPermissions(applicationId));
-        execute(cmdBuilder.buildCopyPrefsToDir(bundle.deviceNormalDir, applicationId));
-        String filesStr = execute(cmdBuilder.buildGetDirFiles(bundle.deviceNormalDir));
-        String[] files = filesStr.split("\n\n");
-        Map<String, String> unifiedNamesMap = buildUnifiedNamesMap(files);
+        shellHelper.clearDir(bundle.deviceNormalDir);
+        shellHelper.clearDir(bundle.deviceUnifiedDir);
+        shellHelper.setPrefsPermissions(applicationId);
+        shellHelper.copyPrefsToDir(bundle.deviceNormalDir, applicationId);
+        Map<String, String> unifiedNamesMap = buildUnifiedNamesMap(bundle.deviceNormalDir);
         unifyFileNames(unifiedNamesMap, bundle);
-        execute(cmdBuilder.buildPullFile(bundle.deviceUnifiedDir, bundle.localMainDir));
+        shellHelper.pullFile(bundle.deviceUnifiedDir, bundle.localMainDir);
         return unifiedNamesMap;
     }
 
-    private String execute(String cmd) {
-        try {
-            return cmdExecutor.execute(cmd);
-        } catch (ExecuteAdbCommandException e) {
-            throw new PullFilesException(e);
-        }
-    }
-
-    private Map<String, String> buildUnifiedNamesMap(String[] files) {
+    private Map<String, String> buildUnifiedNamesMap(String dir) {
+        String filesStr = shellHelper.getDirFiles(dir);
+        String[] files = filesStr.split("\n\n");
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
             map.put(files[i], "pref" + i + ".xml");
@@ -63,7 +57,7 @@ public class FilesPuller {
         for (Map.Entry<String, String> entry : unifiedNamesMap.entrySet()) {
             String src = bundle.deviceNormalDir + "/" + entry.getKey();
             String dst = bundle.deviceUnifiedDir + "/" + entry.getValue();
-            execute(cmdBuilder.buildMoveFile(src, dst));
+            shellHelper.moveFile(src, dst);
         }
     }
 

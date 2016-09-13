@@ -1,7 +1,6 @@
 package com.github.shchurov.prefseditor.helpers;
 
-import com.github.shchurov.prefseditor.helpers.adb.AdbCommandBuilder;
-import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
+import com.github.shchurov.prefseditor.helpers.adb.AdbShellHelper;
 import com.github.shchurov.prefseditor.helpers.exceptions.CreateDirectoriesException;
 import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
@@ -18,43 +17,33 @@ public class DirectoriesCreator {
     private static final String UNIFIED_DIR_NAME = "unified";
 
     private Project project;
-    private AdbCommandBuilder cmdBuilder;
-    private AdbCommandExecutor cmdExecutor;
+    private AdbShellHelper shellHelper;
 
-    public DirectoriesCreator(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor) {
+    public DirectoriesCreator(Project project, AdbShellHelper shellHelper) {
         this.project = project;
-        this.cmdBuilder = cmdBuilder;
-        this.cmdExecutor = cmdExecutor;
+        this.shellHelper = shellHelper;
     }
 
     public DirectoriesBundle createDirectories() throws CreateDirectoriesException {
-        return ProgressManagerUtils.runWithProgressDialog(project, "Creating Directories",
-                this::performCreateDirectories);
+        return Utils.runWithProgressDialog(project, "Creating Directories", () -> {
+            try {
+                return performCreateDirectories();
+            } catch (IOException | ExecuteAdbCommandException e) {
+                throw new CreateDirectoriesException(e);
+            }
+        });
     }
 
-    private DirectoriesBundle performCreateDirectories() {
-        String sdCard = execute(cmdBuilder.buildGetSdCardPath());
+    private DirectoriesBundle performCreateDirectories() throws IOException {
+        String sdCard = shellHelper.getSdCardPath();
         String deviceMainDir = sdCard + "/" + MAIN_DIR_NAME;
         String deviceNormalDir = deviceMainDir + "/" + NORMAL_DIR_NAME;
         String deviceUnifiedDir = deviceMainDir + "/" + UNIFIED_DIR_NAME;
-        execute(cmdBuilder.buildMakeDir(deviceNormalDir));
-        execute(cmdBuilder.buildMakeDir(deviceUnifiedDir));
-        String localMainDir;
-        try {
-            localMainDir = Files.createTempDirectory(null).toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        shellHelper.makeDir(deviceNormalDir);
+        shellHelper.makeDir(deviceUnifiedDir);
+        String localMainDir = Files.createTempDirectory(null).toString();
         String localUnifiedDir = localMainDir + File.separator + UNIFIED_DIR_NAME;
         return new DirectoriesBundle(deviceMainDir, deviceNormalDir, deviceUnifiedDir, localMainDir, localUnifiedDir);
-    }
-
-    private String execute(String command) {
-        try {
-            return cmdExecutor.execute(command);
-        } catch (ExecuteAdbCommandException e) {
-            throw new CreateDirectoriesException(e);
-        }
     }
 
 }
