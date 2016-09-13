@@ -6,6 +6,7 @@ import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandExcep
 import com.github.shchurov.prefseditor.helpers.exceptions.PushFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.android.facet.AndroidFacet;
 
 import java.util.Map;
 
@@ -14,11 +15,16 @@ public class FilesPusher {
     private Project project;
     private AdbCommandBuilder cmdBuilder;
     private AdbCommandExecutor cmdExecutor;
+    private String applicationId;
+    private String activityName;
 
-    public FilesPusher(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor) {
+    public FilesPusher(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor,
+            AndroidFacet facet) {
         this.project = project;
         this.cmdBuilder = cmdBuilder;
         this.cmdExecutor = cmdExecutor;
+        applicationId = ProjectUtils.getApplicationId(facet);
+        activityName = ProjectUtils.getDefaultActivityName(project, facet);
     }
 
     public void pushFiles(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) throws PushFilesException {
@@ -29,11 +35,10 @@ public class FilesPusher {
     private Void performPushFiles(Map<String, String> unifiedNamesMap, DirectoriesBundle bundle) {
         execute(cmdBuilder.buildPushFile(bundle.localUnifiedDir, bundle.deviceMainDir));
         reverseUnifyFileNames(unifiedNamesMap, bundle);
-        String applicationId = ProjectUtils.getApplicationId(project);
-        killApp();
+        execute(cmdBuilder.buildKillApp(applicationId));
         execute(cmdBuilder.buildOverwritePrefs(bundle.deviceNormalDir, applicationId));
         execute(cmdBuilder.buildRemoveDir(bundle.deviceMainDir));
-        startApp();
+        execute(cmdBuilder.buildStartApp(applicationId, activityName));
         return null;
     }
 
@@ -51,17 +56,6 @@ public class FilesPusher {
             String dst = bundle.deviceNormalDir + "/" + entry.getKey();
             execute(cmdBuilder.buildMoveFile(src, dst));
         }
-    }
-
-    private void killApp() {
-        String applicationId = ProjectUtils.getApplicationId(project);
-        execute(cmdBuilder.buildKillApp(applicationId));
-    }
-
-    private void startApp() {
-        String applicationId = ProjectUtils.getApplicationId(project);
-        String activityName = ProjectUtils.getDefaultActivityName(project);
-        execute(cmdBuilder.buildStartApp(applicationId, activityName));
     }
 
 }

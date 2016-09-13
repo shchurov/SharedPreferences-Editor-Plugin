@@ -6,6 +6,7 @@ import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandExcep
 import com.github.shchurov.prefseditor.helpers.exceptions.PullFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.android.facet.AndroidFacet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +16,14 @@ public class FilesPuller {
     private Project project;
     private AdbCommandBuilder cmdBuilder;
     private AdbCommandExecutor cmdExecutor;
+    private String applicationId;
 
-    public FilesPuller(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor) {
+    public FilesPuller(Project project, AdbCommandBuilder cmdBuilder, AdbCommandExecutor cmdExecutor,
+            AndroidFacet facet) {
         this.project = project;
         this.cmdBuilder = cmdBuilder;
         this.cmdExecutor = cmdExecutor;
+        applicationId = ProjectUtils.getApplicationId(facet);
     }
 
     public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException {
@@ -27,7 +31,6 @@ public class FilesPuller {
     }
 
     private Map<String, String> performPullFiles(DirectoriesBundle bundle) {
-        String applicationId = ProjectUtils.getApplicationId(project);
         execute(cmdBuilder.buildClearDir(bundle.deviceNormalDir));
         execute(cmdBuilder.buildClearDir(bundle.deviceUnifiedDir));
         execute(cmdBuilder.buildSetPrefsPermissions(applicationId));

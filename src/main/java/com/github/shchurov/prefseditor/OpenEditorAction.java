@@ -9,10 +9,12 @@ import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.github.shchurov.prefseditor.model.Preference;
 import com.github.shchurov.prefseditor.ui.ChooseDeviceDialog;
 import com.github.shchurov.prefseditor.ui.ChooseFileDialog;
+import com.github.shchurov.prefseditor.ui.ChooseModuleDialog;
 import com.github.shchurov.prefseditor.ui.FileContentDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.android.facet.AndroidFacet;
 
 import java.io.File;
 import java.util.List;
@@ -20,10 +22,8 @@ import java.util.Map;
 
 public class OpenEditorAction extends AnAction {
 
-    //TODO: handle many facets
-    //TODO: add entries
-    //TODO: remove entries
     //TODO: error handling
+    //TODO: refactoring
 
     @Override
     public void actionPerformed(AnActionEvent action) {
@@ -33,10 +33,14 @@ public class OpenEditorAction extends AnAction {
             if (device == null) {
                 return;
             }
+            AndroidFacet facet = new ChooseModuleDialog(project).showAndGetModule();
+            if (facet == null) {
+                return;
+            }
             AdbCommandBuilder cmdBuilder = new AdbCommandBuilder(device.getSerialNumber());
             AdbCommandExecutor cmdExecutor = new AdbCommandExecutor();
             DirectoriesBundle dirBundle = new DirectoriesCreator(project, cmdBuilder, cmdExecutor).createDirectories();
-            Map<String, String> unifiedNamesMap = new FilesPuller(project, cmdBuilder, cmdExecutor)
+            Map<String, String> unifiedNamesMap = new FilesPuller(project, cmdBuilder, cmdExecutor, facet)
                     .pullFiles(dirBundle);
             String selectedName = new ChooseFileDialog(project, unifiedNamesMap.keySet()).showAndGetFileName();
             if (selectedName == null) {
@@ -49,7 +53,7 @@ public class OpenEditorAction extends AnAction {
                 return;
             }
             new PreferencesUnparser().unparse(preferences, selectedFile);
-            new FilesPusher(project, cmdBuilder, cmdExecutor).pushFiles(unifiedNamesMap, dirBundle);
+            new FilesPusher(project, cmdBuilder, cmdExecutor, facet).pushFiles(unifiedNamesMap, dirBundle);
         } catch (CreateDirectoriesException | ParsePreferencesException | PullFilesException | PushFilesException
                 | UnparsePreferencesException | GetDeviceListException | NoDeviceFoundException e) {
             e.printStackTrace();
