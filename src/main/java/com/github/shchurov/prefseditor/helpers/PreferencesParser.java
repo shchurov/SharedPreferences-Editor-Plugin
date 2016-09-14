@@ -13,22 +13,25 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class PreferencesParser {
 
     public List<Preference> parse(String filePath) throws ParsePreferencesException {
-        Document document = buildDocument(filePath);
-        return extractPreferences(document);
-    }
-
-    private Document buildDocument(String filePath) {
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return builder.parse(new File(filePath));
-        } catch (SAXException | IOException | ParserConfigurationException e) {
+            Document document = buildDocument(filePath);
+            return extractPreferences(document);
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new ParsePreferencesException(e);
         }
+    }
+
+    private Document buildDocument(String filePath) throws IOException, SAXException, ParserConfigurationException {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        return builder.parse(new File(filePath));
     }
 
     private List<Preference> extractPreferences(Document document) {

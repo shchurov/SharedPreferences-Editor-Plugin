@@ -18,18 +18,18 @@ import java.util.Set;
 public class PreferencesUnparser {
 
     public void unparse(List<Preference> preferences, String filePath) throws UnparsePreferencesException {
-        Document document = createDocument();
-        putPreferences(preferences, document);
-        saveDocument(document, filePath);
-    }
-
-    private Document createDocument() {
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return builder.newDocument();
-        } catch (ParserConfigurationException e) {
+            Document document = createDocument();
+            putPreferences(preferences, document);
+            saveDocument(document, filePath);
+        } catch (ParserConfigurationException | TransformerException e) {
             throw new UnparsePreferencesException(e);
         }
+    }
+
+    private Document createDocument() throws ParserConfigurationException {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        return builder.newDocument();
     }
 
     private void putPreferences(List<Preference> preferences, Document document) {
@@ -93,15 +93,11 @@ public class PreferencesUnparser {
         }
     }
 
-    private void saveDocument(Document document, String filePath) {
-        try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            Source src = new DOMSource(document);
-            Result dst = new StreamResult(new File(filePath));
-            transformer.transform(src, dst);
-        } catch (TransformerException e) {
-            throw new UnparsePreferencesException(e);
-        }
+    private void saveDocument(Document document, String filePath) throws TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        Source src = new DOMSource(document);
+        Result dst = new StreamResult(new File(filePath));
+        transformer.transform(src, dst);
     }
 
 }
