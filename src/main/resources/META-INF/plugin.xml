@@ -6,7 +6,10 @@
 
     <description><![CDATA[
       Experimental SharedPreferences Editor plugin for AndroidStudio and IntelliJ IDEA.<br>
-      Github page: https://github.com/shchurov/SharedPreferences-Editor-Plugin
+      <br>
+      Setup: <ol><li>Install</li>
+        <li>Tools menu -> SharedPreferences Editor</li></ol>
+      <a href="https://github.com/shchurov/SharedPreferences-Editor-Plugin">Github page</a>
     ]]></description>
 
     <change-notes><![CDATA[
