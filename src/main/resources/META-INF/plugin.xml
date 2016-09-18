@@ -1,24 +1,30 @@
 <idea-plugin version="2">
     <id>com.github.shchurov.prefseditor</id>
     <name>Android SharedPreferences editor</name>
-    <version>1.0</version>
+    <version>1.02</version>
     <vendor email="shchurov.m@gmail.com" url="https://github.com/shchurov">Mykhailo Shchurov</vendor>
 
     <description><![CDATA[
       Experimental SharedPreferences Editor plugin for AndroidStudio and IntelliJ IDEA.<br>
+      Doesn't require any additional software or dependencies. <br>
+      <br>
+      WARNING: It uses ADB commands that are not compatible with some Android devices.<br>
       <br>
       Setup: <ol><li>Install</li>
+        <li>Restart IDE</li>
         <li>Tools menu -> SharedPreferences Editor</li></ol>
-      <a href="https://github.com/shchurov/SharedPreferences-Editor-Plugin">Github page</a>
+        Please leave all your bug-reports and feature-requests on
+        <a href="https://github.com/shchurov/SharedPreferences-Editor-Plugin">Github page</a>.
+
     ]]></description>
 
     <change-notes><![CDATA[
     ]]>
     </change-notes>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="141.0"/>
+    <idea-version since-build="143.1184"/>
 
+    <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.android</depends>
 
     <actions>

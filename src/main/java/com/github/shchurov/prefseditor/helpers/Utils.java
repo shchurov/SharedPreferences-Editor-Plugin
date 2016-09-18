@@ -1,17 +1,18 @@
 package com.github.shchurov.prefseditor.helpers;
 
 import com.android.tools.idea.run.activity.DefaultActivityLocator;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ThrowableComputable;
 import org.jetbrains.android.dom.manifest.Manifest;
 import org.jetbrains.android.facet.AndroidFacet;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-class Utils {
+public class Utils {
 
     static String getDefaultActivityName(Project project, AndroidFacet facet) {
         Manifest manifest = facet.getManifest();
@@ -28,13 +29,14 @@ class Utils {
 
     static <T, E extends Exception> T runWithProgressDialog(Project project, String title,
             Supplier<T> body) throws E {
-        return ProgressManager.getInstance().run(new Task.WithResult<T, E>(project, title, false) {
-            @Override
-            protected T compute(@NotNull ProgressIndicator indicator) throws E {
-                indicator.setIndeterminate(true);
-                return body.get();
-            }
-        });
+        return ProgressManager.getInstance().runProcessWithProgressSynchronously((ThrowableComputable<T, E>) body::get,
+                title, false, project);
+    }
+
+    public static void showErrorNotification(String text) {
+        Notification n = new Notification("com.github.shchurov.prefseditor", "SharedPreferencesEditor",
+                text, NotificationType.ERROR);
+        Notifications.Bus.notify(n);
     }
 
 }

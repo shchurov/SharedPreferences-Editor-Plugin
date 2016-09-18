@@ -6,4 +6,6 @@ apply plugin: 'java'
 
 intellij {
     plugins 'android'
+    pluginName 'SharedPreferences Editor'
+    updateSinceUntilBuild false
 }

@@ -9,7 +9,6 @@ import com.github.shchurov.prefseditor.helpers.exceptions.*;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.github.shchurov.prefseditor.model.Preference;
 import com.github.shchurov.prefseditor.ui.ChooseDialog;
-import com.github.shchurov.prefseditor.ui.ErrorDialog;
 import com.github.shchurov.prefseditor.ui.FileContentDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -22,6 +21,8 @@ import org.jetbrains.android.util.AndroidUtils;
 import java.io.File;
 import java.util.*;
 
+import static com.github.shchurov.prefseditor.helpers.Utils.showErrorNotification;
+
 public class OpenEditorAction extends AnAction {
 
     private Project project;
@@ -31,7 +32,7 @@ public class OpenEditorAction extends AnAction {
         try {
             project = action.getData(PlatformDataKeys.PROJECT);
             if (project == null) {
-                showError("Can't load Project data");
+                showErrorNotification("Can't load Project data");
                 return;
             }
             IDevice device = chooseDevice();
@@ -58,36 +59,34 @@ public class OpenEditorAction extends AnAction {
             new PreferencesUnparser().unparse(preferences, selectedFile);
             new FilesPusher(project, shellHelper, facet).pushFiles(unifiedNamesMap, dirBundle);
         } catch (CreateDirectoriesException e) {
-            showError("Error while creating temporary directories");
+            showErrorNotification("Error while creating temporary directories");
             e.printStackTrace();
         } catch (ParsePreferencesException e) {
-            showError("Error while parsing SharedPreferences file");
+            showErrorNotification("Error while parsing SharedPreferences file");
             e.printStackTrace();
         } catch (PullFilesException e) {
-            showError("Error while pulling SharedPreferences files");
+            showErrorNotification("Error while pulling SharedPreferences files");
             e.printStackTrace();
         } catch (PushFilesException e) {
-            showError("Error while pushing SharedPreferences files");
+            showErrorNotification("Error while pushing SharedPreferences files");
             e.printStackTrace();
         } catch (UnparsePreferencesException e) {
-            showError("Error while un-parsing SharedPreferences file");
+            showErrorNotification("Error while un-parsing SharedPreferences file");
             e.printStackTrace();
+        } catch (PreferencesFilesNotFoundException e) {
+            showErrorNotification("SharedPreferences files not found");
         }
-    }
-
-    private void showError(String text) {
-        new ErrorDialog(project, text).show();
     }
 
     private IDevice chooseDevice() {
         AndroidDebugBridge adb = AndroidSdkUtils.getDebugBridge(project);
         if (adb == null) {
-            showError("ADB connection error");
+            showErrorNotification("ADB connection error");
             return null;
         }
         List<IDevice> devices = Arrays.asList(adb.getDevices());
         if (devices.isEmpty()) {
-            showError("Can't find any devices");
+            showErrorNotification("Can't find any devices");
             return null;
         }
         if (devices.size() == 1) {
@@ -106,7 +105,7 @@ public class OpenEditorAction extends AnAction {
     private AndroidFacet chooseModule() {
         List<AndroidFacet> facets = AndroidUtils.getApplicationFacets(project);
         if (facets.isEmpty()) {
-            showError("Can't find any modules");
+            showErrorNotification("Can't find any modules");
             return null;
         }
         if (facets.size() == 1) {
@@ -124,7 +123,7 @@ public class OpenEditorAction extends AnAction {
     private String chooseFileName(Collection<String> fileNames) {
         List<String> items = new ArrayList<>(fileNames);
         if (items.isEmpty()) {
-            showError("Can't find any SharedPreferences files");
+            showErrorNotification("Can't find any SharedPreferences files");
             return null;
         }
         if (items.size() == 1) {

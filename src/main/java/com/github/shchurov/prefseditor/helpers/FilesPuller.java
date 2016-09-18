@@ -2,6 +2,7 @@ package com.github.shchurov.prefseditor.helpers;
 
 import com.github.shchurov.prefseditor.helpers.adb.AdbShellHelper;
 import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
+import com.github.shchurov.prefseditor.helpers.exceptions.PreferencesFilesNotFoundException;
 import com.github.shchurov.prefseditor.helpers.exceptions.PullFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
@@ -22,7 +23,8 @@ public class FilesPuller {
         applicationId = Utils.getApplicationId(facet);
     }
 
-    public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException {
+    public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException,
+            PreferencesFilesNotFoundException {
         return Utils.runWithProgressDialog(project, "Pulling Files", () -> {
             try {
                 return performPullFiles(bundle);
@@ -44,10 +46,14 @@ public class FilesPuller {
     }
 
     private Map<String, String> buildUnifiedNamesMap(String dir) {
-        String filesStr = shellHelper.getDirFiles(dir);
+        String filesStr = shellHelper.getDirFiles(dir).trim();
+        if (filesStr.isEmpty()) {
+            throw new PreferencesFilesNotFoundException();
+        }
         String[] files = filesStr.split("\n\n");
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
+            System.out.println("!" + files[i] + "!");
             map.put(files[i], "pref" + i + ".xml");
         }
         return map;
