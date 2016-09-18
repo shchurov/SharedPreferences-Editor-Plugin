@@ -1,3 +1,12 @@
+# SharedPreferences Editor plugin
+
+Experimental SharedPreferences Editor plugin for AndroidStudio and IntelliJ IDEA.
+Doesn't require any additional software or dependencies.
+
+**JetBrains Plugin Repository**: https://plugins.jetbrains.com/plugin/8624
+
+**WARNING**: It uses ADB commands that don't work on some Android devices. 
+
 License
 -------
 
