@@ -53,7 +53,6 @@ public class FilesPuller {
         String[] files = filesStr.split("\n\n");
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
-            System.out.println("!" + files[i] + "!");
             map.put(files[i], "pref" + i + ".xml");
         }
         return map;
