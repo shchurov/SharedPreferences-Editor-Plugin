@@ -39,11 +39,11 @@ public class AdbShellHelper {
     }
 
     public void copyPrefsToDir(String dir, String applicationId) {
-        exec(shellPrefix + "cp " + getPrefsPath(applicationId) + "/* " + dir);
+        exec(shellPrefix + "cp " + getPrefsPath(applicationId) + "* " + dir);
     }
 
     public String getDirFiles(String dir) {
-        return exec(shellPrefix + "for name in " + dir + "/*; do echo `basename $name`; done");
+        return exec(shellPrefix + "for f in $(find " + dir + " -type f); do echo `basename $f`; done");
     }
 
     public void moveFile(String src, String dst) {
