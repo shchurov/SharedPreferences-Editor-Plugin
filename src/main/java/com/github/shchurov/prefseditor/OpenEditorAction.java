@@ -5,7 +5,6 @@ import com.android.ddmlib.IDevice;
 import com.github.shchurov.prefseditor.helpers.*;
 import com.github.shchurov.prefseditor.helpers.adb.AdbCommandExecutor;
 import com.github.shchurov.prefseditor.helpers.adb.AdbShellHelper;
-import com.github.shchurov.prefseditor.helpers.exceptions.*;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.github.shchurov.prefseditor.model.Preference;
 import com.github.shchurov.prefseditor.ui.ChooseDialog;
@@ -58,23 +57,8 @@ public class OpenEditorAction extends AnAction {
             }
             new PreferencesUnparser().unparse(preferences, selectedFile);
             new FilesPusher(project, shellHelper, facet).pushFiles(unifiedNamesMap, dirBundle);
-        } catch (CreateDirectoriesException e) {
-            showErrorNotification("Error while creating temporary directories");
-            e.printStackTrace();
-        } catch (ParsePreferencesException e) {
-            showErrorNotification("Error while parsing SharedPreferences file");
-            e.printStackTrace();
-        } catch (PullFilesException e) {
-            showErrorNotification("Error while pulling SharedPreferences files");
-            e.printStackTrace();
-        } catch (PushFilesException e) {
-            showErrorNotification("Error while pushing SharedPreferences files");
-            e.printStackTrace();
-        } catch (UnparsePreferencesException e) {
-            showErrorNotification("Error while un-parsing SharedPreferences file");
-            e.printStackTrace();
-        } catch (PreferencesFilesNotFoundException e) {
-            showErrorNotification("SharedPreferences files not found");
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -136,6 +120,14 @@ public class OpenEditorAction extends AnAction {
             }
         }
                 .showAndGetResult();
+    }
+
+    private void handleException(Exception e) {
+        if (e.getMessage() != null) {
+            showErrorNotification(e.getMessage());
+        } else {
+            showErrorNotification("Unknown error, see error log");
+        }
     }
 
 }
