@@ -43,7 +43,7 @@ public class AdbShellHelper {
     }
 
     public String getDirFiles(String dir) {
-        return exec(shellPrefix + "for f in $(find " + dir + " -type f); do echo `basename $f`; done");
+        return exec(shellPrefix + "for f in " + dir + "/*; do echo $f; done");
     }
 
     public void moveFile(String src, String dst) {

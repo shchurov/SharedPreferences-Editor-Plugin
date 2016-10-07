@@ -8,6 +8,7 @@ import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.android.facet.AndroidFacet;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,13 +48,14 @@ public class FilesPuller {
 
     private Map<String, String> buildUnifiedNamesMap(String dir) {
         String filesStr = shellHelper.getDirFiles(dir).trim();
-        if (filesStr.isEmpty()) {
+        if (filesStr.isEmpty() || filesStr.equals(dir)) {
             throw new PreferencesFilesNotFoundException();
         }
         String[] files = filesStr.split("\n\n");
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
-            map.put(files[i], "pref" + i + ".xml");
+            String[] p = files[i].split("/");
+            map.put(p[p.length - 1], "pref" + i + ".xml");
         }
         return map;
     }
