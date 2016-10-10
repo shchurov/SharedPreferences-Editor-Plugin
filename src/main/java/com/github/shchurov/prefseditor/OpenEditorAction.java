@@ -9,6 +9,7 @@ import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.github.shchurov.prefseditor.model.Preference;
 import com.github.shchurov.prefseditor.ui.ChooseDialog;
 import com.github.shchurov.prefseditor.ui.FileContentDialog;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -24,7 +25,10 @@ import static com.github.shchurov.prefseditor.helpers.Utils.showErrorNotificatio
 
 public class OpenEditorAction extends AnAction {
 
+    private static final String GITHUB_LINK = "https://github.com/shchurov/SharedPreferences-Editor-Plugin";
+
     private Project project;
+    private AdbShellHelper shellHelper;
 
     @Override
     public void actionPerformed(AnActionEvent action) {
@@ -42,7 +46,7 @@ public class OpenEditorAction extends AnAction {
             if (facet == null) {
                 return;
             }
-            AdbShellHelper shellHelper = new AdbShellHelper(new AdbCommandExecutor(), device.getSerialNumber());
+            shellHelper = new AdbShellHelper(new AdbCommandExecutor(), device.getSerialNumber());
             DirectoriesBundle dirBundle = new DirectoriesCreator(project, shellHelper).createDirectories();
             Map<String, String> unifiedNamesMap = new FilesPuller(project, shellHelper, facet).pullFiles(dirBundle);
             String fileName = chooseFileName(unifiedNamesMap.keySet());
@@ -123,11 +127,10 @@ public class OpenEditorAction extends AnAction {
     }
 
     private void handleException(Exception e) {
-        if (e.getMessage() != null) {
-            showErrorNotification(e.getMessage());
-        } else {
-            showErrorNotification("Unknown error, see error log");
-        }
+        String message = e.getMessage() == null ? "Unknown error" : e.getMessage();
+        message += "\nI would really appreciate if you file this issue with the details here: " + GITHUB_LINK + "\n";
+        String details = shellHelper == null ? null : shellHelper.getShellLogs();
+        PluginManager.getLogger().error(message, e, details);
     }
 
 }

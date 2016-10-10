@@ -8,8 +8,7 @@ import java.io.InputStreamReader;
 
 public class AdbCommandExecutor {
 
-    public String execute(String command) throws ExecuteAdbCommandException {
-        System.out.println("Command: " + command);
+    String execute(String command) throws ExecuteAdbCommandException {
         try {
             Process p = Runtime.getRuntime().exec(command);
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));

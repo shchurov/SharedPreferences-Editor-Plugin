@@ -4,6 +4,7 @@ public class AdbShellHelper {
 
     private AdbCommandExecutor cmdExecutor;
     private String shellPrefix;
+    private StringBuilder shellLogs = new StringBuilder();
 
     public AdbShellHelper(AdbCommandExecutor cmdExecutor, String deviceId) {
         this.cmdExecutor = cmdExecutor;
@@ -15,7 +16,17 @@ public class AdbShellHelper {
     }
 
     private String exec(String command) {
-        return cmdExecutor.execute(command);
+        String result = cmdExecutor.execute(command);
+        addToLogs(command, result);
+        return result;
+    }
+
+    private void addToLogs(String command, String result) {
+        shellLogs.append("\nCommand: ")
+                .append(command)
+                .append("\n")
+                .append(result)
+                .append("\n");
     }
 
     public void setPrefsPermissions(String applicationId) {
@@ -68,6 +79,10 @@ public class AdbShellHelper {
 
     public void startApp(String applicationId, String defaultActivityName) {
         exec(shellPrefix + "am start " + applicationId + "/" + defaultActivityName);
+    }
+
+    public String getShellLogs() {
+        return shellLogs.toString();
     }
 
 }
