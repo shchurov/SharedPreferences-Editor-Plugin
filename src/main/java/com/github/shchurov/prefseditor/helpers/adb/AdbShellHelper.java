@@ -6,9 +6,9 @@ public class AdbShellHelper {
     private String shellPrefix;
     private StringBuilder shellLogs = new StringBuilder();
 
-    public AdbShellHelper(AdbCommandExecutor cmdExecutor, String deviceId) {
+    public AdbShellHelper(AdbCommandExecutor cmdExecutor, String deviceId, String adbPath) {
         this.cmdExecutor = cmdExecutor;
-        shellPrefix = "adb -s " + deviceId + " shell ";
+        shellPrefix = adbPath + " -s " + deviceId + " shell ";
     }
 
     public String getSdCardPath() {

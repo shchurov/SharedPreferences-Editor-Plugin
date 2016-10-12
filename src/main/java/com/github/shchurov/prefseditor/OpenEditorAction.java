@@ -46,7 +46,12 @@ public class OpenEditorAction extends AnAction {
             if (facet == null) {
                 return;
             }
-            shellHelper = new AdbShellHelper(new AdbCommandExecutor(), device.getSerialNumber());
+            File adbFile = AndroidSdkUtils.getAdb(project);
+            if (adbFile == null) {
+                showErrorNotification("Can't find ADB executable");
+                return;
+            }
+            shellHelper = new AdbShellHelper(new AdbCommandExecutor(), device.getSerialNumber(), adbFile.getPath());
             DirectoriesBundle dirBundle = new DirectoriesCreator(project, shellHelper).createDirectories();
             Map<String, String> unifiedNamesMap = new FilesPuller(project, shellHelper, facet).pullFiles(dirBundle);
             String fileName = chooseFileName(unifiedNamesMap.keySet());
