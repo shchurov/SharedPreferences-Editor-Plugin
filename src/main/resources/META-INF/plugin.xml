@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.github.shchurov.prefseditor</id>
     <name>Android SharedPreferences editor</name>
-    <version>1.06</version>
+    <version>1.07</version>
     <vendor email="shchurov.m@gmail.com" url="https://github.com/shchurov/SharedPreferences-Editor-Plugin">Mykhailo Shchurov</vendor>
 
     <description><![CDATA[
