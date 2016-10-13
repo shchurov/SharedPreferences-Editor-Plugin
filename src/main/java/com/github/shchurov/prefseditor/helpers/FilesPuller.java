@@ -47,11 +47,11 @@ public class FilesPuller {
     }
 
     private Map<String, String> buildUnifiedNamesMap(String dir) {
-        String filesStr = shellHelper.getDirFiles(dir).trim();
+        String filesStr = shellHelper.getDirFiles(dir);
         if (filesStr.isEmpty() || filesStr.equals(dir)) {
             throw new PreferencesFilesNotFoundException();
         }
-        String[] files = filesStr.split("\n\n");
+        String[] files = filesStr.split("\n");
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < files.length; i++) {
             String[] p = files[i].split("/");
