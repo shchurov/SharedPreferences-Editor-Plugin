@@ -2,13 +2,11 @@ package com.github.shchurov.prefseditor.helpers;
 
 import com.github.shchurov.prefseditor.helpers.adb.AdbShellHelper;
 import com.github.shchurov.prefseditor.helpers.exceptions.ExecuteAdbCommandException;
-import com.github.shchurov.prefseditor.helpers.exceptions.PreferencesFilesNotFoundException;
 import com.github.shchurov.prefseditor.helpers.exceptions.PullFilesException;
 import com.github.shchurov.prefseditor.model.DirectoriesBundle;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.android.facet.AndroidFacet;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +22,7 @@ public class FilesPuller {
         applicationId = Utils.getApplicationId(facet);
     }
 
-    public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException,
-            PreferencesFilesNotFoundException {
+    public Map<String, String> pullFiles(DirectoriesBundle bundle) throws PullFilesException {
         return Utils.runWithProgressDialog(project, "Pulling Files", () -> {
             try {
                 return performPullFiles(bundle);
@@ -41,6 +38,9 @@ public class FilesPuller {
         shellHelper.setPrefsPermissions(applicationId);
         shellHelper.copyPrefsToDir(bundle.deviceNormalDir, applicationId);
         Map<String, String> unifiedNamesMap = buildUnifiedNamesMap(bundle.deviceNormalDir);
+        if (unifiedNamesMap == null) {
+            return null;
+        }
         unifyFileNames(unifiedNamesMap, bundle);
         shellHelper.pullFile(bundle.deviceUnifiedDir, bundle.localMainDir);
         return unifiedNamesMap;
@@ -48,8 +48,8 @@ public class FilesPuller {
 
     private Map<String, String> buildUnifiedNamesMap(String dir) {
         String filesStr = shellHelper.getDirFiles(dir);
-        if (filesStr.isEmpty() || filesStr.equals(dir)) {
-            throw new PreferencesFilesNotFoundException();
+        if (filesStr.isEmpty() || filesStr.equals(dir + "/*")) {
+            return null;
         }
         String[] files = filesStr.split("\n");
         Map<String, String> map = new HashMap<>();

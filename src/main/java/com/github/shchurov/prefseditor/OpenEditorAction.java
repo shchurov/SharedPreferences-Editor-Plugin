@@ -54,6 +54,10 @@ public class OpenEditorAction extends AnAction {
             shellHelper = new AdbShellHelper(new AdbCommandExecutor(), device.getSerialNumber(), adbFile.getPath());
             DirectoriesBundle dirBundle = new DirectoriesCreator(project, shellHelper).createDirectories();
             Map<String, String> unifiedNamesMap = new FilesPuller(project, shellHelper, facet).pullFiles(dirBundle);
+            if (unifiedNamesMap == null) {
+                showErrorNotification("SharedPreferences files not found");
+                return;
+            }
             String fileName = chooseFileName(unifiedNamesMap.keySet());
             if (fileName == null) {
                 return;
