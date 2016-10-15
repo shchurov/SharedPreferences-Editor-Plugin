@@ -3,10 +3,12 @@ package com.github.shchurov.prefseditor.helpers.adb;
 public class AdbShellHelper {
 
     private AdbCommandExecutor cmdExecutor;
+    private String adbPath;
     private String shellPrefix;
     private StringBuilder shellLogs = new StringBuilder();
 
     public AdbShellHelper(AdbCommandExecutor cmdExecutor, String deviceId, String adbPath) {
+        this.adbPath = adbPath;
         this.cmdExecutor = cmdExecutor;
         shellPrefix = adbPath + " -s " + deviceId + " shell ";
     }
@@ -62,11 +64,11 @@ public class AdbShellHelper {
     }
 
     public void pullFile(String src, String dst) {
-        exec("adb pull " + src + " " + dst);
+        exec(adbPath + " pull " + src + " " + dst);
     }
 
     public void pushFile(String src, String dst) {
-        exec("adb push " + src + " " + dst);
+        exec(adbPath + " push " + src + " " + dst);
     }
 
     public void overwritePrefs(String dir, String applicationId) {
