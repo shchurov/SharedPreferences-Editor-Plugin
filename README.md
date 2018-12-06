@@ -1,5 +1,5 @@
 # SharedPreferences Editor plugin
-**UPDATE** Unfortunately, plugin doesn't work with recent versions of Android Studio.
+### UPDATE: Unfortunately, plugin doesn't work in recent versions of Android Studio.
 
 Experimental SharedPreferences Editor plugin for AndroidStudio and IntelliJ IDEA.
 Doesn't require any additional software or dependencies.
